@@ -1,5 +1,5 @@
 from pydantic import BaseModel,EmailStr
-
+from uuid import UUID
 #USER SCHEMAS:
 class CreateUser(BaseModel):
     username : str 
@@ -11,7 +11,7 @@ class UserLogin(BaseModel):
     password : str
 
 class UserResponse(BaseModel):
-    id : int
+    id : UUID
     username : str
 
     class Config:
@@ -23,10 +23,12 @@ class CreateHabit(BaseModel):
     name : str 
 
 class HabitResponse(BaseModel):
-    id : str 
+    id : UUID
     name : str
 
-    class Config(BaseModel):
+    class Config:
         from_attributes = True
 
+class UpdatedHabit(BaseModel):
+    updated_name : str
 
