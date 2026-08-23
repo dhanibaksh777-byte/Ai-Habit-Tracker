@@ -1,11 +1,11 @@
 from app.dependencies import get_current_user
 from fastapi import APIRouter,Depends,HTTPException,status
 from sqlalchemy.orm import Session
-from app.models import User,Habit
-from app.schemas import CreateHabit,UpdatedHabit
+from app.models import User,Habit,HabitLog
+from app.schemas import CreateHabit,UpdatedHabit,HabitStatus
 from app.database import get_db
 from uuid import UUID
-
+from datetime import date,timedelta
 
 
 router = APIRouter(prefix="/habit")
@@ -20,7 +20,6 @@ def habit(habit : CreateHabit,CurrentUser : User = Depends(get_current_user),db 
     return new_habit
 
 
-
 @router.get("/get-habit/{habit_id}")
 def get_habit(habit_id : UUID,CurrentUser : User = Depends(get_current_user),db : Session = Depends(get_db)):
     habit = db.query(Habit).filter(Habit.id == habit_id,Habit.user_id == CurrentUser.id).first()
@@ -28,12 +27,10 @@ def get_habit(habit_id : UUID,CurrentUser : User = Depends(get_current_user),db 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="habit not found!")
     return habit
 
-
 @router.get("/get-all-habits")
 def get_all_habits(CurrentUser : User = Depends(get_current_user), db : Session = Depends(get_db)):
     habit = db.query(Habit).filter(Habit.user_id == CurrentUser.id).all()
     return habit
-
 
 @router.patch("/update-habit/{habit_id}")
 def update_habit(habit_id : UUID,update_habit : UpdatedHabit,CurrentUser : User = Depends(get_current_user),db : Session = Depends(get_db)):
@@ -47,7 +44,6 @@ def update_habit(habit_id : UUID,update_habit : UpdatedHabit,CurrentUser : User 
     return {"message" : "habit updated successfully!"}
 
 
-
 @router.delete("/delete-habit/{habit_id}")
 def delete_habit(habit_id : UUID,CurrentUser : User = Depends(get_current_user),db : Session = Depends(get_db)):
     habit = db.query(Habit).filter(Habit.id == habit_id,Habit.user_id == CurrentUser.id).first()
@@ -58,7 +54,23 @@ def delete_habit(habit_id : UUID,CurrentUser : User = Depends(get_current_user),
     return {"message" : "habit deleted successfully!"}
 
 
-    
-    
+@router.get("/streak/{habit_id}")
+def streak_count(habit_id : UUID,CurrentUser : User = Depends(get_current_user),db : Session = Depends(get_db)):
+     habit = db.query(Habit).filter(Habit.id == habit_id,Habit.user_id == CurrentUser.id).first()
+     if not habit :
+          raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="habit not found!")
+     logs = db.query(HabitLog).filter(HabitLog.habit_id == habit_id).order_by(HabitLog.date.desc()).all()
+     current_streak = 0
+     expected_date = date.today()
+
+     for log in logs:
+          if log.date == expected_date or log.status == HabitStatus.DONE:
+               current_streak += 1
+               expected_date -= timedelta(days=1)
+          else:
+            break
+          
+     return {"current streak" : current_streak}
+
 
 
