@@ -65,7 +65,7 @@ def streak_count(habit_id : UUID,CurrentUser : User = Depends(get_current_user),
      expected_date = date.today()
 
      for log in logs:
-          if log.date == expected_date or log.status == HabitStatus.DONE:
+          if log.date == expected_date and log.status == HabitStatus.DONE:
                current_streak += 1
                expected_date -= timedelta(days=1)
           else:
@@ -76,25 +76,19 @@ def streak_count(habit_id : UUID,CurrentUser : User = Depends(get_current_user),
      temp_streak = 0
      previous_date = None
 
-     for logs in logs_ascending:
-         if logs.status != HabitStatus.DONE:
+     for log in logs_ascending:
+         if log.status != HabitStatus.DONE:
              temp_streak = 0
 
             
-         elif logs.status ==  HabitStatus.Done:
-             if previous_date is not None and logs.date == previous_date + timedelta(days=1):
+         elif log.status ==  HabitStatus.DONE:
+             if previous_date is not None and log.date == previous_date + timedelta(days=1):
                  temp_streak += 1
-                 longest_streak = max(longest_streak,temp_streak)
 
-         previous_date = logs.date
+             else:
+                 
+                 temp_streak = 1
+             longest_streak = max(longest_streak,temp_streak)
+             previous_date = log.date
 
-             
-
-             
-             
-             
-         
-     
-
-
-     
+     return {"current_streak": current_streak, "longest_streak": longest_streak}
