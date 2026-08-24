@@ -44,6 +44,7 @@ def update_habit(habit_id : UUID,update_habit : UpdatedHabit,CurrentUser : User 
     return {"message" : "habit updated successfully!"}
 
 
+
 @router.delete("/delete-habit/{habit_id}")
 def delete_habit(habit_id : UUID,CurrentUser : User = Depends(get_current_user),db : Session = Depends(get_db)):
     habit = db.query(Habit).filter(Habit.id == habit_id,Habit.user_id == CurrentUser.id).first()
@@ -69,8 +70,31 @@ def streak_count(habit_id : UUID,CurrentUser : User = Depends(get_current_user),
                expected_date -= timedelta(days=1)
           else:
             break
-          
-     return {"current streak" : current_streak}
+
+     logs_ascending = db.query(HabitLog).filter(HabitLog.habit_id == habit_id).order_by(HabitLog.date.asc()).all()
+     longest_streak = 0
+     temp_streak = 0
+     previous_date = None
+
+     for logs in logs_ascending:
+         if logs.status != HabitStatus.DONE:
+             temp_streak = 0
+
+            
+         elif logs.status ==  HabitStatus.Done:
+             if previous_date is not None and logs.date == previous_date + timedelta(days=1):
+                 temp_streak += 1
+                 longest_streak = max(longest_streak,temp_streak)
+
+         previous_date = logs.date
+
+             
+
+             
+             
+             
+         
+     
 
 
-
+     
