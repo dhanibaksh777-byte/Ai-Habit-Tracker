@@ -7,3 +7,4 @@ alembic
 pydantic[email]
 passlib[argon2]
 python-jose[cryptography]
+groq
