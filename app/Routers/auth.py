@@ -9,7 +9,9 @@ from app.schemas import CreateUser,UserLogin,UserResponse
 from dotenv import load_dotenv
 from datetime import datetime,timezone,timedelta
 from typing import Any
+from main import limiter
 import os 
+from requests import Request
 
 load_dotenv()
 
@@ -38,7 +40,8 @@ router = APIRouter(prefix="/auth")
 
 
 @router.post("/register",response_model=UserResponse,status_code=status.HTTP_201_CREATED)
-def regester(user : CreateUser,db : Session = Depends(get_db)):
+@limiter.limit("5/minutes")
+def regester(request : Request,user : CreateUser,db : Session = Depends(get_db)):
     username = db.query(User).filter(User.username == user.username).first()
     if username:
         raise HTTPException(status_code = status.HTTP_400_BAD_REQUEST,detail="username already exists")
