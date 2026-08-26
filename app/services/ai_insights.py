@@ -1,7 +1,6 @@
 from groq import Groq
 from dotenv import load_dotenv
 import os
-from fastapi import HTTPException,status
 from uuid import UUID
 from sqlalchemy.orm import Session
 from datetime import date,timedelta
@@ -49,6 +48,5 @@ def get_weekly_insights(habit_id : UUID,db : Session):
     log_text = "\n".join(log_lines)
     insight = get_response(log_text)
     return insight
-
 
 

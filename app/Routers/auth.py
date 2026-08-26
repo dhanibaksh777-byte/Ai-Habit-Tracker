@@ -11,7 +11,7 @@ from datetime import datetime,timezone,timedelta
 from typing import Any
 from main import limiter
 import os 
-from requests import Request
+from fastapi import Request
 
 load_dotenv()
 
@@ -57,7 +57,8 @@ def regester(request : Request,user : CreateUser,db : Session = Depends(get_db))
 
 
 @router.post("/login")
-def login(user : UserLogin,db : Session = Depends(get_db)):
+@limiter.limit("5/minutes")
+def login(request : Request,user : UserLogin,db : Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
     if not db_user or not bcrypt.checkpw(user.password.encode("utf-8"),db_user.password.encode("utf-8")):
         raise HTTPException(status_code = status.HTTP_404_NOT_FOUND,detail="wrong password email")
