@@ -5,7 +5,7 @@ from app.models import Habit,User
 from fastapi import APIRouter,Depends,HTTPException,status
 from sqlalchemy.orm import Session
 from app.dependencies import get_current_user
-from main import limiter
+from app.limiter import limiter
 from fastapi import Request
 
 

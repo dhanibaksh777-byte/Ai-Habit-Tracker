@@ -9,7 +9,7 @@ from app.schemas import CreateUser,UserLogin,UserResponse
 from dotenv import load_dotenv
 from datetime import datetime,timezone,timedelta
 from typing import Any
-from main import limiter
+from app.limiter import limiter
 import os 
 from fastapi import Request
 

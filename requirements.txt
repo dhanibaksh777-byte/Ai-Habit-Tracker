@@ -9,3 +9,5 @@ passlib[argon2]
 python-jose[cryptography]
 groq
 slowapi
+bcrypt
+slowapi
